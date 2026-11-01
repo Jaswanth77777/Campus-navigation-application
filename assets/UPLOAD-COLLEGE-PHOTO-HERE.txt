@@ -1,0 +1,1 @@
+Upload the official Joy University campus photo in this folder and name it joy-campus.jpg. The login page references assets/joy-campus.jpg.
