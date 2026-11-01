@@ -91,7 +91,7 @@ button:hover{background:#ffffff22}button.on,.pri{background:linear-gradient(135d
 #sideTools button{flex:1;font-size:11px;padding:6px 7px}
 @media(max-width:820px){#side{width:240px}#card{left:12px;right:12px;width:auto;top:auto;bottom:12px;max-height:58%;z-index:25;box-shadow:0 24px 80px #000d}.brand small{display:none}}
 </style></head><body>
-<script type="module">import {supabase} from './js/supabase.js'; const {data:{session}}=await supabase.auth.getSession(); if(!session) location.replace('index.html');</script>
+<script type="module">import {supabase} from './js/supabase.js'; const {data:{session}}=await supabase.auth.getSession(); if(!session){location.replace('index.html')}else{const {data:profile}=await supabase.from('profiles').select('approved').eq('id',session.user.id).maybeSingle();if(!profile?.approved){await supabase.auth.signOut();location.replace('index.html')}}</script>
 
 <div id="load">
   <div class="loadbox">
