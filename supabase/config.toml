@@ -1,0 +1,5 @@
+[functions.request-login]
+verify_jwt = false
+
+[functions.submit-admission]
+verify_jwt = false
