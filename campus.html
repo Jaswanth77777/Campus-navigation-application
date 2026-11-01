@@ -1090,7 +1090,7 @@ function startLoading(){
     if(i>=stages.length){
       setTimeout(()=>{
         loadEl.style.opacity="0";
-        setTimeout(()=>{loadEl.remove();showProfileSetupIfNeeded();},800);
+        setTimeout(()=>{loadEl.remove();},800);
       },250);
       return;
     }
