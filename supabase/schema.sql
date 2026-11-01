@@ -38,9 +38,21 @@ alter table public.admissions enable row level security;
 alter table public.login_history enable row level security;
 alter table public.campus_locations enable row level security;
 create policy "users read own profile" on public.profiles for select to authenticated using (id=auth.uid());
-create policy "admin reads profiles" on public.profiles for select to authenticated using (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'));
+create or replace function public.is_admin() returns boolean
+language sql stable security definer set search_path=public
+as $ select exists(select 1 from public.profiles where id=auth.uid() and role='admin' and approved=true) $;
+create policy "admin reads profiles" on public.profiles for select to authenticated using (public.is_admin());
 create policy "users add own login history" on public.login_history for insert to authenticated with check (user_id=auth.uid());
-create policy "admins read login history" on public.login_history for select to authenticated using (exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'));
+create policy "admins read login history" on public.login_history for select to authenticated using (public.is_admin());
+create or replace function public.set_login_history_role() returns trigger
+language plpgsql security definer set search_path=public
+as $ begin
+  select role into new.role from public.profiles where id=new.user_id and approved=true;
+  if new.role is null then raise exception 'No approved campus profile'; end if;
+  return new;
+end; $;
+create trigger login_history_set_role before insert on public.login_history
+for each row execute function public.set_login_history_role();
 create policy "authenticated users read campus locations" on public.campus_locations for select to authenticated using (true);
 -- No public read/insert policy for admissions or DOB hashes. Admissions writes happen only in the server function.
 -- Provision profiles through a trusted admin process; never put the service-role key in browser code.
